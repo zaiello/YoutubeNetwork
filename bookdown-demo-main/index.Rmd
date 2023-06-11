@@ -1,0 +1,116 @@
+--- 
+title: "Youtube Collaboration Network"
+author: "Zoe Aiello"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+github-repo: zaiello/YoutubeNetwork
+description: "This is a short in-progress project to visualize Youtuber collaboration networks."
+---
+
+# Index
+
+## Introduction
+Navigate through each page using the menu on the left hand side of the page. 
+
+## Using the widget
+- Use the mouse scrollwheel to zoom.
+- Use the left mouse button to rotate the network.
+- Use the right mouse button to pan.
+- Click on a node to highlight their collaborations.
+- Click and drag on a node to move the network around.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# install.packages("igraph")
+# install.packages("networkD3")
+# install.packages("bookdown")
+library(igraph)
+library(networkD3)
+library(bookdown)
+```
+
+```{r include=FALSE}
+# upload data
+collabdata <- read.csv("YoutuberCollabWeb.csv", header = T)
+```
+
+```{r include=FALSE}
+# remove video title column
+collabdata1 <- collabdata[-1]
+
+
+# remove collaborators 2, 3, 4
+collabdata2 <- collabdata1[1:2]
+
+# change row names
+colnames(collabdata2) <- c('from', 'to')
+```
+
+```{r include=FALSE}
+# subset first and third row
+collabdata3 <- collabdata1[c(1,3)]
+
+# remove rows with no collaborator 2
+collabdata3 <- collabdata3[!(is.na(collabdata3$`Collaborator.2`) | collabdata3$`Collaborator.2` ==""),]
+
+# change row names
+colnames(collabdata3) <- c('from', 'to')
+```
+
+```{r include=FALSE}
+# subset first and fourth row
+collabdata4 <- collabdata1[c(1,4)]
+
+# remove rows with no collaborator 3
+collabdata4 <- collabdata4[!(is.na(collabdata4$`Collaborator.3`) | collabdata4$`Collaborator.3` ==""),]
+
+# change row names
+colnames(collabdata4) <- c('from', 'to')
+```
+
+```{r include=FALSE}
+# subset first and fifth row
+collabdata5 <- collabdata1[c(1,5)]
+
+# remove rows with no collaborator 4
+collabdata5 <- collabdata5[!(is.na(collabdata5$`Collaborator.4`) | collabdata5$`Collaborator.4` ==""),]
+
+# change row names
+colnames(collabdata5) <- c('from', 'to')
+```
+
+```{r include=FALSE}
+# Combine all rows
+collabdata_merge <- rbind(collabdata2, collabdata3, collabdata4, collabdata5)
+```
+
+## Widget
+```{r echo=FALSE}
+# Plot
+p <- simpleNetwork(collabdata_merge,
+                   Source = 1,                 # column number of source
+                   Target = 2,                 # column number of target
+                   linkDistance = 10,          # distance between node. Increase this value to have more space between nodes
+                   charge = -900,                # numeric value indicating either the strength of the node repulsion (negative value) or attraction (positive value)
+                   fontSize = 14,               # size of the node names
+                   fontFamily = "serif",       # font og node names
+                   linkColour = "#666",        # colour of edges, MUST be a common colour for the whole graph
+                   nodeColour = "#69b3a2",     # colour of nodes, MUST be a common colour for the whole graph
+                   opacity = 0.9,              # opacity of nodes. 0=transparent. 1=no transparency
+                   zoom = T                    # Can you zoom on the figure?
+)
+
+p
+```
+
+```{r include=FALSE}
+# automatically create a bib database for R packages
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown'
+), 'packages.bib')
+```
